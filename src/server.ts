@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { filterImageFromURL, deleteLocalFiles } from './util/util';
-import fs from "fs";
+import fs, { ReadStream } from "fs";
 import axios from "axios";
 
 (async () => {
@@ -32,14 +32,15 @@ import axios from "axios";
   /**************************************************************************** */
 
   //! END @TODO1
-  app.get("/filteredimage", async (req, res) => {
+  app.get("/filteredimage", async (req:express.Request, res:express.Response) => {
     try {
-      const url = req.query.image_url;
+      const url:string = req.query.image_url;
       if (!url) return res.status(400).json({ error: "wrong or unsupported parameter" });
       axios.get(url).then(async (resp) => {
         if (resp.status === 200) {
-          const imagePath = await filterImageFromURL(url);
-          var readStream = fs.createReadStream(imagePath);
+          const imagePath:string = await filterImageFromURL(url);
+          var readStream:ReadStream = fs.createReadStream(imagePath);
+          
           readStream.pipe(res);
           deleteLocalFiles([imagePath]);
         }
